@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Memento Aché Interativo - Atualizado</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ache-gradient {
+      background: linear-gradient(90deg, #b80d48 0%, #e11d62 60%, #9f093c 100%);
+    }
+    .row-pink  { background-color: #fceef3; border-color: #f9d2e0; }
+    .row-green { background-color: #eef7eb; border-color: #d6ebd0; }
+    .row-peach { background-color: #fbf0e9; border-color: #f3dacb; }
+    .row-blue  { background-color: #ebf3fa; border-color: #cfe3f5; }
+    .row-lilac { background-color: #f3eff8; border-color: #e2d7f0; }
+    .row-mint  { background-color: #eaf5f1; border-color: #cce8de; }
+
+    .spec-bullet li {
+      position: relative;
+      padding-left: 11px;
+      line-height: 1.25;
+    }
+    .spec-bullet li::before {
+      content: "•";
+      color: #d61556;
+      font-weight: 900;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    @media print {
+      header, .no-print, #bulaModal { display: none !important; }
+      #fullBularioView { display: block !important; }
+      #matrixView { display: none !important; }
+      body { background: white !important; font-size: 11px !important; }
+      .page-break { page-break-after: always; break-after: page; }
+      article { break-inside: avoid; border: 1px solid #cbd5e1 !important; margin-bottom: 12px !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- CABEÇALHO -->
+  <header class="ache-gradient text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-3 py-3 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div class="flex items-center gap-2.5">
+          <svg class="w-9 h-9 shrink-0" viewBox="0 0 40 40" fill="none">
+            <circle cx="19" cy="21" r="14" stroke="#ffffff" stroke-width="2.5"/>
+            <circle cx="19" cy="21" r="9" stroke="#ffffff" stroke-width="2.2"/>
+            <circle cx="19" cy="21" r="4" fill="#ffffff"/>
+            <path d="M29 11L19 21M29 11H23M29 11V17" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div>
+            <h1 class="text-xs sm:text-base md:text-lg font-normal tracking-tight leading-snug">
+              NOSSAS MARCAS, AS <strong class="font-black">ESPECIALIDADES</strong> CERTAS PARA CADA SOLUÇÃO
+            </h1>
+            <p class="text-[11px] sm:text-xs text-pink-100">
+              Toque em qualquer marca para abrir as apresentações e indicações
+            </p>
+          </div>
+        </div>
+        <div class="text-right pl-3 border-l border-white/25 shrink-0">
+          <div class="text-xl sm:text-2xl font-black tracking-tighter leading-none">achē</div>
+          <span class="text-[9px] text-pink-100 block mt-0.5 whitespace-nowrap">mais vida para você</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- BARRA DE FERRAMENTAS / FILTROS -->
+  <section class="bg-white border-b border-slate-200 sticky top-[68px] sm:top-[64px] z-20 shadow-sm no-print">
+    <div class="max-w-6xl mx-auto px-3 py-2.5 sm:px-6 flex flex-col md:flex-row gap-2 items-stretch md:items-center justify-between">
+      <div class="relative flex-1">
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Buscar marca (ex: Étira, Vidap, Canabidiol, Cuidados pela Vida)..."
+          class="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-600 focus:bg-white"
+        />
+        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <button id="clearSearchBtn" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold">✕</button>
+      </div>
+
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+        <button onclick="setFilter('ALL')" data-filter="ALL" class="filter-btn shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-pink-700 text-white transition">
+          Todas (20)
+        </button>
+        <button onclick="setFilter('SNC')" data-filter="SNC" class="filter-btn shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-pink-50 transition">
+          🧠 SNC
+        </button>
+        <button onclick="setFilter('Cardio')" data-filter="Cardio" class="filter-btn shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-pink-50 transition">
+          ❤️ Cardio
+        </button>
+        <button onclick="setFilter('Endocrino')" data-filter="Endocrino" class="filter-btn shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-pink-50 transition">
+          🦋 Endócrino
+        </button>
+        <button onclick="window.print()" class="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white hover:bg-black transition ml-auto flex items-center gap-1">
+          🖨️ Exportar como PDF
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LÂMINA PRINCIPAL -->
+  <main class="max-w-6xl mx-auto w-full px-2.5 sm:px-6 py-4 flex-1 pb-16">
+    <div id="matrixView">
+      <div class="mb-3 bg-pink-50 border border-pink-200 rounded-lg px-3 py-2 flex items-center justify-between text-xs text-pink-900 no-print">
+        <span>👆 <strong>Interativo:</strong> Toque em qualquer linha para abrir os <strong>detalhes do produto</strong>.</span>
+        <span id="counterBadge" class="font-extrabold shrink-0 ml-2">20 marcas</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+        <div id="leftColumnContainer" class="space-y-1.5">
+          <div class="grid grid-cols-12 bg-[#d61556] text-white text-[10px] sm:text-xs font-extrabold uppercase rounded-md overflow-hidden shadow-sm">
+            <div class="col-span-5 py-2 px-2 text-center">MARCA</div>
+            <div class="col-span-3 py-2 px-2 text-center border-x border-white/30">PRINCÍPIO ATIVO</div>
+            <div class="col-span-4 py-2 px-2 text-center">ESPECIALIDADES FOCO</div>
+          </div>
+          <div id="leftRows" class="space-y-1.5 pb-2"></div>
+        </div>
+
+        <div id="rightColumnContainer" class="space-y-1.5">
+          <div class="grid grid-cols-12 bg-[#d61556] text-white text-[10px] sm:text-xs font-extrabold uppercase rounded-md overflow-hidden shadow-sm">
+            <div class="col-span-5 py-2 px-2 text-center">MARCA</div>
+            <div class="col-span-3 py-2 px-2 text-center border-x border-white/30">PRINCÍPIO ATIVO</div>
+            <div class="col-span-4 py-2 px-2 text-center">ESPECIALIDADES FOCO</div>
+          </div>
+          <div id="rightRows" class="space-y-1.5 pb-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISÃO COMPLETA PARA EXPORTAÇÃO EM PDF -->
+    <div id="fullBularioView" class="hidden space-y-4">
+      <div class="bg-slate-900 text-white px-4 py-3 rounded-xl mb-4">
+        <h2 class="text-base font-extrabold">Portfólio de Produtos — Apresentações Atualizadas</h2>
+        <p class="text-xs text-slate-300">Guia de Medicamentos e Soluções</p>
+      </div>
+      <div id="allBulasContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </div>
+
+    <!-- RODAPÉ -->
+    <footer class="mt-6 bg-white border border-pink-200 rounded-xl p-3 sm:p-4 shadow-sm no-print">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="text-xs text-slate-600">
+          Aché Laboratórios Farmacêuticos S.A. • Memento Linha Cuidados pela Vida
+        </div>
+        <div class="text-right italic font-black text-pink-700 text-base sm:text-lg leading-tight -rotate-2 shrink-0">
+          Juntos por<br>mais saúde!
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- MODAL DE DETALHES INTERATIVO -->
+  <div id="bulaModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 hidden items-center justify-center p-2 sm:p-4">
+    <div class="bg-white w-full sm:max-w-2xl rounded-2xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden">
+      <div class="ache-gradient text-white px-4 py-3.5 flex items-center justify-between shrink-0">
+        <div>
+          <span id="modalColumnTag" class="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded font-bold">Guia Informativo</span>
+          <h3 id="modalTitle" class="text-lg sm:text-xl font-black mt-0.5">Nome do Produto</h3>
+          <p id="modalSubstance" class="text-xs text-pink-100 font-medium">Princípio Ativo</p>
+        </div>
+        <button onclick="closeModal()" class="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white font-black text-lg">✕</button>
+      </div>
+
+      <div class="p-4 sm:p-6 overflow-y-auto space-y-4 text-slate-800 flex-1">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div id="modalLogoBox" class="px-3 py-2 bg-white rounded-lg border border-slate-200 shadow-xs"></div>
+          <div id="modalSpecs" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <div class="bg-pink-50/70 border-l-4 border-pink-600 p-3.5 rounded-r-xl">
+          <h4 class="text-xs font-extrabold uppercase tracking-wide text-pink-900 mb-1.5 flex items-center gap-1.5">
+            📦 Apresentações Comerciais
+          </h4>
+          <div id="modalPresentations" class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium"></div>
+        </div>
+
+        <div class="bg-sky-50/70 border-l-4 border-sky-600 p-3.5 rounded-r-xl">
+          <h4 class="text-xs font-extrabold uppercase tracking-wide text-sky-900 mb-1.5 flex items-center gap-1.5">
+            🩺 Indicações Clínicas (ANVISA)
+          </h4>
+          <div id="modalIndications" class="text-xs sm:text-sm text-slate-800 leading-relaxed"></div>
+        </div>
+
+        <div class="bg-slate-100 p-3 rounded-xl text-xs text-slate-600">
+          <span id="modalRegistry" class="font-semibold block"></span>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 border-t border-slate-200 px-4 py-3 flex items-center justify-between shrink-0">
+        <button id="prevProdBtn" class="text-xs font-bold text-slate-700 hover:text-pink-700 px-3 py-1.5 rounded-lg border border-slate-300 bg-white">
+          ← Anterior
+        </button>
+        <button onclick="closeModal()" class="text-xs font-extrabold bg-pink-700 hover:bg-pink-800 text-white px-5 py-2 rounded-lg">
+          Fechar
+        </button>
+        <button id="nextProdBtn" class="text-xs font-bold text-slate-700 hover:text-pink-700 px-3 py-1.5 rounded-lg border border-slate-300 bg-white">
+          Próxima →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PRODUCTS = [
+      {
+        id: 'vidap', column: 'left', order: 1, name: 'VIDAP®', substance: 'Dapagliflozina', rowClass: 'row-pink',
+        pillars: ['Endocrino', 'Cardio'], specialties: ['Endocrinologia', 'Cardiologia', 'Nefrologia', 'Clínica Médica'],
+        logoHtml: `<div class="text-center leading-none"><span class="text-base font-black text-[#be185d]"><span class="text-[#ec4899] text-xl">V</span>IDAP</span><span class="block text-[9px] text-slate-600 font-semibold">dapagliflozina</span></div>`,
+        presentations: `Cpr rev 10 mg (cx c/ 30 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li><strong>Diabetes Mellitus Tipo 2 (DM2):</strong> melhora do controle glicêmico e prevenção de IC e nefropatia.</li><li><strong>Insuficiência Cardíaca (ICFEr):</strong> redução de morte cardiovascular e hospitalização.</li><li><strong>Doença Renal Crônica (DRC):</strong> redução de declínio da TFGe e progressão renal.</li></ul>`,
+        registry: 'MS: 1.0573.0762'
+      },
+      {
+        id: 'trezor', column: 'left', order: 2, name: 'TREZOR®', substance: 'Rosuvastatina cálcica', rowClass: 'row-green',
+        pillars: ['Cardio', 'Endocrino'], specialties: ['Cardiologia', 'Endocrinologia', 'Clínica Médica', 'Geriatria'],
+        logoHtml: `<div class="text-center leading-none"><span class="text-base font-extrabold text-[#14532d]">TREZ<span class="text-[#d97706]">O</span>R</span><span class="block text-[9px] text-[#a16207] font-semibold">rosuvastatina cálcica</span></div>`,
+        presentations: `Cpr rev 5 mg, 10 mg, 20 mg e 40 mg (cx c/ 30 e 60 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Redução de LDL-C, colesterol total e triglicérides na hipercolesterolemia primária e dislipidemia mista.</li><li>Retardamento da progressão da aterosclerose.</li></ul>`,
+        registry: 'Portfólio de Produtos'
+      },
+      {
+        id: 'bravan', column: 'left', order: 3, name: 'Família BRAVAN®', substance: 'Valsartana e associações', rowClass: 'row-peach',
+        pillars: ['Cardio'], specialties: ['Cardiologia', 'Clínica Médica', 'Nefrologia', 'Geriatria'],
+        logoHtml: `<div class="text-center leading-none"><span class="block text-[9px] italic font-bold text-sky-700">Família</span><span class="text-base font-black text-[#1e3a8a]">BRAVAN<span class="text-red-600 ml-0.5">♥</span></span><span class="block text-[9px] text-slate-500 font-semibold">valsartana</span></div>`,
+        presentations: `• <strong>Bravan (Valsartana):</strong> Cpr rev 80 mg, 160 mg e 320 mg (cx c/ 30 cpr)<br>• <strong>Bravan Duo (Valsartana + Anlodipino):</strong> Cpr rev 80+5mg, 160+5mg, 160+10mg, 320+5mg e 320+10mg (cx c/ 30 cpr)<br>• <strong>Bravan HCT (Valsartana + Hidroclorotiazida):</strong> Cpr rev 80+12,5mg, 160+12,5mg e 160+25mg (cx c/ 30 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Tratamento da hipertensão arterial sistêmica e insuficiência cardíaca.</li><li>Melhora da sobrevida após infarto agudo do miocárdio.</li></ul>`,
+        registry: 'Família Bravan®'
+      },
+      {
+        id: 'gilmov', column: 'left', order: 4, name: 'GILMOV®', substance: 'Mesilato de rasagilina', rowClass: 'row-blue',
+        pillars: ['SNC'], specialties: ['Neurologia', 'Geriatria'],
+        logoHtml: `<div class="text-center leading-none"><span class="text-base font-black text-[#1e3a5f]">GILMOV®</span><span class="block text-[9px] text-slate-500 font-semibold">mesilato de rasagilina</span></div>`,
+        presentations: `Cpr 1 mg (cx c/ 30 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Tratamento da Doença de Parkinson idiopática em monoterapia ou adjuvante com levodopa.</li></ul>`,
+        registry: 'Portfólio de Produtos'
+      },
+      {
+        id: 'cbd-sem-thc', column: 'left', order: 5, name: 'Canabidiol Aché (Sem THC)', substance: 'Canabidiol (CBD) — 100 mg/mL', rowClass: 'row-peach',
+        pillars: ['SNC'], specialties: ['Neurologia', 'Psiquiatria', 'Geriatria', 'Clínica da Dor'],
+        logoHtml: `<div class="text-center leading-none"><span class="text-sm font-black text-[#be123c] block">canabidiol</span><span class="text-[10px] font-black text-[#be123c] block text-right pr-2">achē</span></div>`,
+        presentations: `Solução oral 100 mg/mL (frasco c/ 10 mL ou 30 mL)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Indicado sob prescrição para condições clínicas refratárias (RDC 327/2019 ANVISA). Contraindicado para menores de 2 anos.</li></ul>`,
+        registry: 'Folheto Informativo (RDC 327/2019)'
+      },
+      {
+        id: 'cbd-com-thc', column: 'left', order: 6, name: 'Canabidiol Aché / Extrato de Cannabis (Com THC)', substance: 'Extrato de Cannabis sativa L. (36,76 mg/mL)', rowClass: 'row-pink',
+        pillars: ['SNC'], specialties: ['Neurologia', 'Psiquiatria', 'Geriatria', 'Clínica da Dor'],
+        logoHtml: `<div class="inline-flex items-center gap-1 leading-none"><div class="text-left"><span class="text-sm font-black text-[#be123c] block">canabidiol</span><span class="text-[9px] font-black text-[#be123c] block text-right">achē</span></div><span class="bg-[#9d174d] text-white text-[9px] font-black px-1.5 py-1.5 rounded-full">THC</span></div>`,
+        presentations: `Solução oral 36,76 mg/mL (frasco c/ 30 mL)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Indicado em quadros refratários de Neurologia, Psiquiatria e Dor pelo efeito comitiva (CBD + THC).</li></ul>`,
+        registry: 'RDC 327/2019 ANVISA'
+      },
+      {
+        id: 'exodus', column: 'left', order: 7, name: 'EXODUS®', substance: 'Oxalato de escitalopram', rowClass: 'row-lilac',
+        pillars: ['SNC'], specialties: ['Psiquiatria', 'Neurologia', 'Geriatria', 'Clínica Médica'],
+        logoHtml: `<div class="text-center leading-none"><span class="text-sm font-black text-[#0c4a6e]"><span class="text-red-600">↗</span>EXODUS</span><span class="block text-[9px] text-[#be123c] font-semibold">oxalato de escitalopram</span></div>`,
+        presentations: `• Cpr rev 10 mg, 15 mg e 20 mg (cx c/ 30 ou 60 cpr)<br>• Solução oral 20 mg/mL (frasco gotejador c/ 15 mL)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Tratamento e prevenção da depressão, Transtorno do Pânico, TAG, Fobia Social e TOC.</li></ul>`,
+        registry: 'Portfólio de Produtos'
+      },
+      {
+        id: 'ekson', column: 'left', order: 8, name: 'EKSON®', substance: 'Levodopa + Cloridrato de benserazida', rowClass: 'row-blue',
+        pillars: ['SNC'], specialties: ['Neurologia', 'Geriatria'],
+        logoHtml: `<div class="text-center leading-none"><span class="text-base font-black text-[#15803d]">EKS✿<span class="text-[#0284c7]">N</span></span><span class="block text-[9px] text-slate-500 font-semibold">levodopa + benserazida</span></div>`,
+        presentations: `• Cpr 100 mg + 25 mg (cx c/ 30 cpr)<br>• Cpr 200 mg + 50 mg (cx c/ 30 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Tratamento de pacientes com Doença de Parkinson.</li></ul>`,
+        registry: 'Portfólio de Produtos'
+      },
+      {
+        id: 'donila', column: 'left', order: 9, name: 'DONILA®', substance: 'Cloridrato de donepezila', rowClass: 'row-green',
+        pillars: ['SNC'], specialties: ['Neurologia', 'Geriatria'],
+        logoHtml: `<div class="text-center leading-none"><span class="text-base font-black text-[#15803d]"><span class="bg-[#581c87] text-white px-1 rounded-xs mr-0.5">D</span>ONILA</span><span class="block text-[9px] text-slate-600 font-semibold">cloridrato de donepezila</span></div>`,
+        presentations: `• Cpr rev 5 mg (cx c/ 30 cpr)<br>• Cpr rev 10 mg (cx c/ 15, 30 ou 60 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Tratamento sintomático da Doença de Alzheimer leve, moderadamente grave e grave.</li></ul>`,
+        registry: 'Portfólio de Produtos'
+      },
+      {
+        id: 'donila-duo', column: 'left', order: 10, name: 'DONILA DUO®', substance: 'Cloridrato de donepezila + Cloridrato de memantina', rowClass: 'row-blue',
+        pillars: ['SNC'], specialties: ['Neurologia', 'Geriatria'],
+        logoHtml: `<div class="text-center leading-none"><span class="text-xs font-black text-[#15803d]"><span class="bg-[#581c87] text-white px-1 rounded-xs mr-0.5">D</span>ONILA<span class="text-[#0284c7]">DUO</span></span><span class="block text-[8px] text-slate-600 font-semibold">donepezila + memantina</span></div>`,
+        presentations: `• Cartelas de titulação 10 mg + 5 mg / 10 mg + 10 mg / 10 mg + 15mg (cx c/ 7 cpr)<br>• Cpr 10 mg + 20 mg (cx c/ 30 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Tratamento da Doença de Alzheimer moderada a grave.</li></ul>`,
+        registry: 'MS: 1.0573.0467'
+      },
+      {
+        id: 'lutab', column: 'left', order: 11, name: 'LUTAB®', substance: 'Cloridrato de lurasidona', rowClass: 'row-pink',
+        pillars: ['SNC'], specialties: ['Psiquiatria', 'Neurologia'],
+        logoHtml: `<div class="text-center leading-none"><span class="text-base font-black text-[#311042]"><span class="text-orange-600 mr-0.5">✖</span>LUTAB®</span><span class="block text-[9px] text-slate-500 font-semibold">cloridrato de lurasidona</span></div>`,
+        presentations: `Cpr rev 20 mg, 40 mg e 80 mg (cx c/ 30 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Esquizofrenia (adultos e adolescentes) e Depressão Bipolar Tipo I.</li></ul>`,
+        registry: 'Portfólio de Produtos'
+      },
+      {
+        id: 'cefaliv', column: 'left', order: 12, name: 'CEFALIV®', substance: 'Di-hidroergotamina + Dipirona + Cafeína', rowClass: 'row-blue',
+        pillars: ['SNC'], specialties: ['Neurologia', 'Clínica Médica'],
+        logoHtml: `<div class="text-center leading-none"><span class="text-base font-black text-[#0284c7]">CEFALIV</span><span class="block text-[8px] text-slate-500 font-semibold">di-hidroergotamina + dipirona + cafeína</span></div>`,
+        presentations: `Cpr (cx c/ 12 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Tratamento agudo das crises de enxaqueca (migrânea) e cefaleias vasculares.</li></ul>`,
+        registry: 'MS: 1.0573.0069'
+      },
+      {
+        id: 'vivencia', column: 'left', order: 13, name: 'VIVENCIA Patch®', substance: 'Rivastigmina (adesivo transdérmico)', rowClass: 'row-mint',
+        pillars: ['SNC'], specialties: ['Neurologia', 'Geriatria', 'Psiquiatria'],
+        logoHtml: `<div class="text-center leading-none"><span class="text-xs font-black text-slate-900">VIVENCIA<span class="bg-sky-400 text-white px-1.5 py-0.5 rounded-full text-[9px] ml-0.5">Patch</span></span><span class="block text-[8px] text-slate-500 font-semibold mt-0.5">rivastigmina adesivo transdérmico</span></div>`,
+        presentations: `Adesivos 4,6 mg/24h, 9,5 mg/24h e 13,3 mg/24h (cx c/ 30 adesivos)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Demência associada à Doença de Alzheimer ou Doença de Parkinson.</li></ul>`,
+        registry: 'Portfólio de Produtos'
+      },
+      {
+        id: 'etira', column: 'right', order: 14, name: 'ÉTIRA®', substance: 'Levetiracetam', rowClass: 'row-blue',
+        pillars: ['SNC'], specialties: ['Neurologia', 'Geriatria'],
+        logoHtml: `<div class="text-center leading-none py-1"><span class="text-lg font-black text-[#0284c7]">ÉTIRA®<span class="text-purple-600 text-xs align-top">✦</span></span><span class="block text-[9px] text-slate-600 font-semibold">levetiracetam</span></div>`,
+        presentations: `• Cpr rev 500 mg (cx c/ 30 ou 60 cpr)<br>• Cpr rev 1000 mg (cx c/ 30 cpr)<br>• Solução oral 100 mg/mL (frasco c/ 100 mL / 150 mL)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Monoterapia e terapia adjuvante em crises focais/parciais, crises mioclônicas e tônico-clônicas.</li></ul>`,
+        registry: 'MS: 1.0573.0515'
+      },
+      {
+        id: 'tolrest', column: 'right', order: 15, name: 'Tolrest®', substance: 'Cloridrato de sertralina', rowClass: 'row-blue',
+        pillars: ['SNC'], specialties: ['Psiquiatria', 'Neurologia', 'Geriatria', 'Clínica Médica'],
+        logoHtml: `<div class="inline-flex items-center gap-1.5 py-1 leading-none"><svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="3" fill="#f59e0b"/><path d="M4 11C8 14 16 14 20 11" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/><path d="M5 14C9 19 15 19 19 14" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/><path d="M12 11V21" stroke="#1e3a8a" stroke-width="2.5" stroke-linecap="round"/></svg><div class="text-left"><span class="text-base font-black text-slate-900 block">Tolrest®</span><span class="text-[8px] text-slate-600 font-semibold block">cloridrato de sertralina</span></div></div>`,
+        presentations: `• Cpr rev 25 mg e 50 mg (cx c/ 30 cpr)<br>• Cpr rev 75 mg e 100 mg (cx c/ 30 ou 60 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Depressão, Transtorno do Pânico, TEPT, Fobia Social, STPM/TDPM e TOC.</li></ul>`,
+        registry: 'MS: 1.0573.0564'
+      },
+      {
+        id: 'osamy', column: 'right', order: 16, name: 'OSAMY®', substance: 'Lacosamida', rowClass: 'row-lilac',
+        pillars: ['SNC'], specialties: ['Neurologia', 'Geriatria'],
+        logoHtml: `<div class="text-center leading-none py-1"><span class="text-base font-black text-[#312e81]">OSAMY®<span class="text-purple-600 text-xs align-top">•••</span></span><span class="block text-[9px] text-slate-500 font-semibold">lacosamida</span></div>`,
+        presentations: `Cpr rev 50 mg e 100 mg (cx c/ 30 e 60 cpr) Cpr rev 150 mg e 200 mg (cx c/ 30 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Monoterapia e adjuvante no tratamento de crises epilépticas focais (≥ 16 anos).</li></ul>`,
+        registry: 'Portfólio de Produtos'
+      },
+      {
+        id: 'levoid', column: 'right', order: 17, name: 'Levoid®', substance: 'Levotiroxina sódica', rowClass: 'row-green',
+        pillars: ['Endocrino'], specialties: ['Endocrinologia', 'Clínica Médica', 'Ginecologia', 'Geriatria'],
+        logoHtml: `<div class="text-center leading-none py-1"><span class="text-base font-extrabold text-[#0369a1]"><span class="text-pink-600 mr-0.5">❦</span>Levoid®</span><span class="block text-[9px] text-slate-600 font-semibold">levotiroxina sódica</span></div>`,
+        presentations: `Cpr (dosagens de 25 mcg a 200 mcg) (cx c/ 15 ou 30 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Reposição hormonal no hipotireoidismo e supressão de TSH no bócio e câncer de tireoide.</li></ul>`,
+        registry: 'Portfólio de Produtos'
+      },
+      {
+        id: 'soanza', column: 'right', order: 18, name: 'Soanza XR®', substance: 'Cloridrato de trimetazidina (liberação prolongada)', rowClass: 'row-pink',
+        pillars: ['Cardio'], specialties: ['Cardiologia', 'Clínica Médica'],
+        logoHtml: `<div class="text-center leading-none py-1"><span class="text-base font-black text-slate-700"><span class="text-rose-600 mr-0.5">♥</span>Soanza<span class="text-rose-600">XR®</span></span><span class="block text-[8px] text-slate-500 font-semibold">dicloridrato de trimetazidina</span></div>`,
+        presentations: `Cpr lib. prolongada 35 mg (cx c/ 30 e 60 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Tratamento da cardiopatia isquêmica (angina) e insuficiência cardíaca de causa isquêmica.</li></ul>`,
+        registry: 'Portfólio de Produtos'
+      },
+      {
+        id: 'betadine', column: 'right', order: 19, name: 'Família Betadine®', substance: 'Dicloridrato de betaistina (liberação prolongada)', rowClass: 'row-mint',
+        pillars: ['Otorrino', 'SNC'], specialties: ['Otorrinolaringologia', 'Neurologia', 'Geriatria'],
+        logoHtml: `<div class="text-center leading-none py-1"><span class="block text-[9px] italic font-bold text-sky-700">Família</span><span class="text-base font-black italic text-[#0284c7]"><span class="text-green-600">B</span>etadine®</span><span class="block text-[8px] text-slate-500 font-semibold">dicloridrato de betaistina</span></div>`,
+        presentations: `Cpr lib. prolongada 32 mg e 48 mg (cx c/ 30 cpr)`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Tratamento da Síndrome de Ménière e tontura de origem vestibular.</li></ul>`,
+        registry: 'Família Betadine® XR'
+      },
+      {
+        id: 'cuidados', column: 'right', order: 20, name: 'CUIDADOS PELA VIDA', substance: 'Programa/linha institucional de suporte ao paciente crônico', rowClass: 'row-lilac',
+        pillars: ['SNC', 'Cardio', 'Endocrino', 'Otorrino'], specialties: ['Programa Institucional'],
+        logoHtml: `<div class="inline-flex items-center gap-1.5 py-1 leading-none"><span class="text-lg text-pink-600">💙❤️</span><span class="text-[10px] font-black text-[#311042] text-left leading-tight">CUIDADOS<br>PELA VIDA</span></div>`,
+        presentations: `Programa/linha institucional de suporte ao paciente crônico`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Oferece suporte gratuito, descontos em farmácias e educação em saúde para adesão ao tratamento.</li><li>Site: <strong>www.cuidadospelavida.com.br</strong> | Central: <strong>0800 701 6900</strong>.</li></ul>`,
+        registry: 'Programa Institucional'
+      }
+    ];
+
+    let currentFilter = 'ALL';
+    let currentSearch = '';
+
+    function createRowHtml(item) {
+      const specsList = item.id === 'cuidados'
+        ? `<div class="text-center font-bold text-slate-400">—</div>`
+        : `<ul class="spec-bullet text-[10px] sm:text-[11px] font-semibold text-slate-800 space-y-0.5">
+            ${item.specialties.map(s => `<li>${s}</li>`).join('')}
+          </ul>`;
+
+      return `
+        <div onclick="openModal('${item.id}')" class="grid grid-cols-12 items-center rounded-lg border ${item.rowClass} p-1.5 sm:p-2 cursor-pointer hover:ring-2 hover:ring-pink-600 hover:shadow-md transition group">
+          <div class="col-span-5 bg-white/85 rounded-md py-2 px-1.5 flex flex-col items-center justify-center shadow-xs border border-black/5">
+            ${item.logoHtml}
+            <span class="mt-1 text-[9px] font-bold text-pink-700 opacity-85 group-hover:underline">Ver detalhes →</span>
+          </div>
+          <div class="col-span-3 px-2 text-[11px] sm:text-xs font-extrabold text-slate-800 leading-tight break-words">
+            ${item.substance}
+          </div>
+          <div class="col-span-4 pl-1.5 pr-1">
+            ${specsList}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMatrix() {
+      const leftContainer = document.getElementById('leftRows');
+      const rightContainer = document.getElementById('rightRows');
+      const allBulasContainer = document.getElementById('allBulasContainer');
+      
+      if (!leftContainer || !rightContainer) return;
+
+      const filtered = PRODUCTS.filter(p => {
+        const matchesPillar = currentFilter === 'ALL' || p.pillars.includes(currentFilter);
+        const q = currentSearch.trim().toLowerCase();
+        const matchesSearch = !q ||
+          p.name.toLowerCase().includes(q) ||
+          p.substance.toLowerCase().includes(q) ||
+          p.specialties.some(s => s.toLowerCase().includes(q));
+        return matchesPillar && matchesSearch;
+      });
+
+      const leftItems = filtered.filter(p => p.column === 'left');
+      const rightItems = filtered.filter(p => p.column === 'right');
+
+      leftContainer.innerHTML = leftItems.length ? leftItems.map(createRowHtml).join('') : `<div class="p-4 text-center text-xs text-slate-400">Nenhum produto.</div>`;
+      rightContainer.innerHTML = rightItems.length ? rightItems.map(createRowHtml).join('') : `<div class="p-4 text-center text-xs text-slate-400">Nenhum produto.</div>`;
+
+      const counter = document.getElementById('counterBadge');
+      if (counter) counter.textContent = `${filtered.length} marca(s) exibida(s)`;
+
+      if (allBulasContainer) {
+        allBulasContainer.innerHTML = PRODUCTS.map(p => `
+          <article class="bg-white rounded-xl border border-slate-200 border-l-4 border-l-pink-600 p-4 shadow-xs space-y-2">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <div>
+                <h3 class="text-sm font-black text-slate-900">${p.name}</h3>
+                <p class="text-xs font-bold text-pink-700">${p.substance}</p>
+              </div>
+              <span class="text-[10px] font-bold bg-pink-50 text-pink-800 px-2 py-0.5 rounded-full">${p.pillars.join(', ')}</span>
+            </div>
+            <div class="text-xs text-slate-800">
+              <strong class="text-slate-900 block">📦 Apresentações Comerciais:</strong>
+              ${p.presentations}
+            </div>
+            <div class="text-xs text-slate-800">
+              <strong class="text-slate-900 block">🩺 Indicações de Bula:</strong>
+              ${p.indications}
+            </div>
+          </article>
+        `).join('');
+      }
+    }
+
+    function setFilter(filterKey) {
+      currentFilter = filterKey;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (btn.dataset.filter === filterKey) {
+          btn.className = 'filter-btn shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-pink-700 text-white transition';
+        } else {
+          btn.className = 'filter-btn shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-pink-50 transition';
+        }
+      });
+      renderMatrix();
+    }
+
+    function openModal(productId) {
+      const idx = PRODUCTS.findIndex(p => p.id === productId);
+      if (idx === -1) return;
+      const item = PRODUCTS[idx];
+
+      document.getElementById('modalColumnTag').textContent = `Item ${item.order} de 20 • Guia de Produtos`;
+      document.getElementById('modalTitle').textContent = item.name;
+      document.getElementById('modalSubstance').textContent = `Princípio Ativo: ${item.substance}`;
+      document.getElementById('modalLogoBox').innerHTML = item.logoHtml;
+      document.getElementById('modalSpecs').innerHTML = item.specialties
+        .map(s => `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-pink-100 text-pink-800">• ${s}</span>`)
+        .join('');
+      document.getElementById('modalPresentations').innerHTML = item.presentations;
+      document.getElementById('modalIndications').innerHTML = item.indications;
+      document.getElementById('modalRegistry').textContent = item.registry;
+
+      const prevIdx = (idx - 1 + PRODUCTS.length) % PRODUCTS.length;
+      const nextIdx = (idx + 1) % PRODUCTS.length;
+      document.getElementById('prevProdBtn').onclick = () => openModal(PRODUCTS[prevIdx].id);
+      document.getElementById('nextProdBtn').onclick = () => openModal(PRODUCTS[nextIdx].id);
+
+      const modal = document.getElementById('bulaModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('bulaModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderMatrix();
+      const searchInput = document.getElementById('searchInput');
+      const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          currentSearch = e.target.value;
+          if (clearSearchBtn) clearSearchBtn.classList.toggle('hidden', !currentSearch);
+          renderMatrix();
+        });
+      }
+
+      if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          currentSearch = '';
+          clearSearchBtn.classList.add('hidden');
+          renderMatrix();
+        });
+      }
+
+      const modal = document.getElementById('bulaModal');
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target.id === 'bulaModal') closeModal();
+        });
+      }
+    });
+  </script>
+</body>
+</html>
