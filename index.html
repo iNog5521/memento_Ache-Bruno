@@ -3,7 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Memento Aché Interativo - Atualizado</title>
+  <title>Memento Portfólio Aché</title>
+
+  <!-- META TAGS DE COMPARTILHAMENTO (WHATSAPP / REDES SOCIAIS) -->
+  <meta property="og:title" content="Memento Portfólio Aché" />
+  <meta property="og:description" content="Guia de Medicamentos, Apresentações Comerciais e Indicações Clínicas." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="icon-512.png" />
+
+  <!-- PWA & MANIFEST (ANDROID / WEB) -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#b80d48" />
+
+  <!-- ATALHO NA TELA DE INÍCIO DO IPHONE / IOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Memento Aché" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+
+  <!-- ESTILOS E FONTES -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -77,7 +95,7 @@
     </div>
   </header>
 
-  <!-- BARRA DE FERRAMENTAS / FILTROS -->
+  <!-- BARRA DE FILTROS E BUSCA -->
   <section class="bg-white border-b border-slate-200 sticky top-[68px] sm:top-[64px] z-20 shadow-sm no-print">
     <div class="max-w-6xl mx-auto px-3 py-2.5 sm:px-6 flex flex-col md:flex-row gap-2 items-stretch md:items-center justify-between">
       <div class="relative flex-1">
@@ -113,7 +131,7 @@
     </div>
   </section>
 
-  <!-- LÂMINA PRINCIPAL -->
+  <!-- CORPO PRINCIPAL / LÂMINA -->
   <main class="max-w-6xl mx-auto w-full px-2.5 sm:px-6 py-4 flex-1 pb-16">
     <div id="matrixView">
       <div class="mb-3 bg-pink-50 border border-pink-200 rounded-lg px-3 py-2 flex items-center justify-between text-xs text-pink-900 no-print">
@@ -142,11 +160,11 @@
       </div>
     </div>
 
-    <!-- VISÃO COMPLETA PARA EXPORTAÇÃO EM PDF -->
+    <!-- MODO COMPLETO PARA IMPRESSÃO / PDF -->
     <div id="fullBularioView" class="hidden space-y-4">
       <div class="bg-slate-900 text-white px-4 py-3 rounded-xl mb-4">
         <h2 class="text-base font-extrabold">Portfólio de Produtos — Apresentações Atualizadas</h2>
-        <p class="text-xs text-slate-300">Guia de Medicamentos e Soluções</p>
+        <p class="text-xs text-slate-300">Guia Informativo de Medicamentos</p>
       </div>
       <div id="allBulasContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
@@ -164,7 +182,7 @@
     </footer>
   </main>
 
-  <!-- MODAL DE DETALHES INTERATIVO -->
+  <!-- MODAL FLUTUANTE (POP-UP) -->
   <div id="bulaModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 hidden items-center justify-center p-2 sm:p-4">
     <div class="bg-white w-full sm:max-w-2xl rounded-2xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden">
       <div class="ache-gradient text-white px-4 py-3.5 flex items-center justify-between shrink-0">
@@ -341,7 +359,7 @@
         id: 'osamy', column: 'right', order: 16, name: 'OSAMY®', substance: 'Lacosamida', rowClass: 'row-lilac',
         pillars: ['SNC'], specialties: ['Neurologia', 'Geriatria'],
         logoHtml: `<div class="text-center leading-none py-1"><span class="text-base font-black text-[#312e81]">OSAMY®<span class="text-purple-600 text-xs align-top">•••</span></span><span class="block text-[9px] text-slate-500 font-semibold">lacosamida</span></div>`,
-        presentations: `Cpr rev 50 mg e 100 mg (cx c/ 30 e 60 cpr) Cpr rev 150 mg e 200 mg (cx c/ 30 cpr)`,
+        presentations: `Cpr rev 50 mg e 100 mg (cx c/ 30 e 60 cpr)`,
         indications: `<ul class="list-disc pl-4 space-y-1"><li>Monoterapia e adjuvante no tratamento de crises epilépticas focais (≥ 16 anos).</li></ul>`,
         registry: 'Portfólio de Produtos'
       },
@@ -366,7 +384,7 @@
         pillars: ['Otorrino', 'SNC'], specialties: ['Otorrinolaringologia', 'Neurologia', 'Geriatria'],
         logoHtml: `<div class="text-center leading-none py-1"><span class="block text-[9px] italic font-bold text-sky-700">Família</span><span class="text-base font-black italic text-[#0284c7]"><span class="text-green-600">B</span>etadine®</span><span class="block text-[8px] text-slate-500 font-semibold">dicloridrato de betaistina</span></div>`,
         presentations: `Cpr lib. prolongada 32 mg e 48 mg (cx c/ 30 cpr)`,
-        indications: `<ul class="list-disc pl-4 space-y-1"><li>Tratamento da Síndrome de Ménière e tontura de origem vestibular.</li></ul>`,
+        indications: `<ul class="list-disc pl-4 space-y-1"><li>Tratamento da肌 Síndrome de Ménière e tontura de origem vestibular.</li></ul>`,
         registry: 'Família Betadine® XR'
       },
       {
@@ -425,8 +443,8 @@
       const leftItems = filtered.filter(p => p.column === 'left');
       const rightItems = filtered.filter(p => p.column === 'right');
 
-      leftContainer.innerHTML = leftItems.length ? leftItems.map(createRowHtml).join('') : `<div class="p-4 text-center text-xs text-slate-400">Nenhum produto.</div>`;
-      rightContainer.innerHTML = rightItems.length ? rightItems.map(createRowHtml).join('') : `<div class="p-4 text-center text-xs text-slate-400">Nenhum produto.</div>`;
+      leftContainer.innerHTML = leftItems.length ? leftItems.map(createRowHtml).join('') : `<div class="p-4 text-center text-xs text-slate-400">Nenhum produto encontrado.</div>`;
+      rightContainer.innerHTML = rightItems.length ? rightItems.map(createRowHtml).join('') : `<div class="p-4 text-center text-xs text-slate-400">Nenhum produto encontrado.</div>`;
 
       const counter = document.getElementById('counterBadge');
       if (counter) counter.textContent = `${filtered.length} marca(s) exibida(s)`;
@@ -446,7 +464,7 @@
               ${p.presentations}
             </div>
             <div class="text-xs text-slate-800">
-              <strong class="text-slate-900 block">🩺 Indicações de Bula:</strong>
+              <strong class="text-slate-900 block">🩺 Indicações:</strong>
               ${p.indications}
             </div>
           </article>
